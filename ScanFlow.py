@@ -1,4 +1,5 @@
 import subprocess
+import platform
 
 # Define colors
 NC = '\033[0m'  # No Color
@@ -10,12 +11,18 @@ BLUE = '\033[34m'
 CYAN = '\033[36m'
 WHITE = '\033[37m'
 
+
 # Function to check if a command exists
 def check_command(command):
-    result = subprocess.run(["where", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if platform.system() == "Windows":
+        result = subprocess.run(["where", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    else:  # Assume Linux (including Kali)
+        result = subprocess.run(["which", command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
     if result.returncode != 0:
         print(f"{RED}{command} is required but not installed. Aborting.{NC}")
         exit(1)
+
 
 # Function to display a menu and take user input
 def display_menu(prompt, *options):
@@ -35,6 +42,7 @@ def display_menu(prompt, *options):
         except ValueError:
             print(f"{RED}Please enter a valid number.{NC}")
 
+
 # Check if nmap is installed
 check_command("nmap")
 
@@ -44,13 +52,13 @@ print(f"{YELLOW}This tool helps you scan networks using nmap with custom options
 
 # Step 1: Target Specification
 target_choice = display_menu("Target Specification",
-    "Scan a single IP",
-    "Scan specific IPs",
-    "Scan a range of IPs",
-    "Scan a domain",
-    "Scan using CIDR notation",
-    "Scan targets from a file",
-    "Exclude listed hosts")
+                             "Scan a single IP",
+                             "Scan specific IPs",
+                             "Scan a range of IPs",
+                             "Scan a domain",
+                             "Scan using CIDR notation",
+                             "Scan targets from a file",
+                             "Exclude listed hosts")
 
 target = None
 if target_choice == "Scan a single IP":
@@ -75,31 +83,31 @@ elif target_choice == "Exclude listed hosts":
 
 # Step 2: Scan Techniques
 scan_technique = display_menu("Scan Techniques",
-    "-sS: TCP SYN scan (default)",
-    "-sT: TCP connect scan (non-root users)",
-    "-sU: UDP scan",
-    "-sA: TCP ACK scan",
-    "-sW: TCP Window scan",
-    "-sM: TCP Maimon scan")
+                              "-sS: TCP SYN scan (default)",
+                              "-sT: TCP connect scan (non-root users)",
+                              "-sU: UDP scan",
+                              "-sA: TCP ACK scan",
+                              "-sW: TCP Window scan",
+                              "-sM: TCP Maimon scan")
 
 # Step 3: Host Discovery
 host_discovery = display_menu("Host Discovery",
-    "-sL: List scan (no scan, list targets only)",
-    "-sn: Disable port scan (ping scan only)",
-    "-Pn: No ping (only port scan)",
-    "-PS: TCP SYN discovery",
-    "-PA: TCP ACK discovery",
-    "-PU: UDP discovery",
-    "-PR: ARP discovery (local network)")
+                              "-sL: List scan (no scan, list targets only)",
+                              "-sn: Disable port scan (ping scan only)",
+                              "-Pn: No ping (only port scan)",
+                              "-PS: TCP SYN discovery",
+                              "-PA: TCP ACK discovery",
+                              "-PU: UDP discovery",
+                              "-PR: ARP discovery (local network)")
 
 # Step 4: Port Specification
 port_choice = display_menu("Port Specification",
-    "Scan a specific port",
-    "Scan a range of ports",
-    "Scan multiple TCP and UDP ports",
-    "Fast scan (100 default ports)",
-    "Scan top 2000 ports",
-    "Scan all 65535 ports")
+                           "Scan a specific port",
+                           "Scan a range of ports",
+                           "Scan multiple TCP and UDP ports",
+                           "Fast scan (100 default ports)",
+                           "Scan top 2000 ports",
+                           "Scan all 65535 ports")
 
 port = None
 if port_choice == "Scan a specific port":
@@ -117,9 +125,9 @@ elif port_choice == "Scan all 65535 ports":
 
 # Step 5: Service and Version Detection
 version_detection = display_menu("Service and Version Detection",
-    "No version detection",
-    "-sV: Version detection",
-    "--version-intensity: Set intensity level (0-9)")
+                                 "No version detection",
+                                 "-sV: Version detection",
+                                 "--version-intensity: Set intensity level (0-9)")
 
 if version_detection == "--version-intensity: Set intensity level (0-9)":
     intensity = input("Enter version intensity (0-9): ").strip()
@@ -127,10 +135,10 @@ if version_detection == "--version-intensity: Set intensity level (0-9)":
 
 # Step 6: OS Detection
 os_detection = display_menu("OS Detection",
-    "No OS detection",
-    "-O: Enable OS detection",
-    "--osscan-guess: Aggressive OS detection guess",
-    "--max-os-tries: Set max number of tries")
+                            "No OS detection",
+                            "-O: Enable OS detection",
+                            "--osscan-guess: Aggressive OS detection guess",
+                            "--max-os-tries: Set max number of tries")
 
 if os_detection == "--max-os-tries: Set max number of tries":
     max_tries = input("Enter max number of OS detection tries: ").strip()
@@ -138,10 +146,10 @@ if os_detection == "--max-os-tries: Set max number of tries":
 
 # Step 7: Timing and Performance
 timing_performance = display_menu("Timing and Performance",
-    "-T0: Paranoid (IDS evasion)",
-    "-T4: Aggressive (fast)",
-    "--max-retries: Set max retry attempts",
-    "--min-rate: Set minimum packet rate")
+                                  "-T0: Paranoid (IDS evasion)",
+                                  "-T4: Aggressive (fast)",
+                                  "--max-retries: Set max retry attempts",
+                                  "--min-rate: Set minimum packet rate")
 
 if timing_performance == "--max-retries: Set max retry attempts":
     retries = input("Enter the number of retries: ").strip()
@@ -152,12 +160,12 @@ elif timing_performance == "--min-rate: Set minimum packet rate":
 
 # Step 8: Firewall/IDS Evasion
 firewall_evasion = display_menu("Firewall/IDS Evasion",
-    "No firewall evasion",
-    "-f: Use tiny fragmented IP packets",
-    "--mtu: Set custom offset size",
-    "-D: Use decoys",
-    "-S: Spoof source IP",
-    "--proxies: Use proxies")
+                                "No firewall evasion",
+                                "-f: Use tiny fragmented IP packets",
+                                "--mtu: Set custom offset size",
+                                "-D: Use decoys",
+                                "-S: Spoof source IP",
+                                "--proxies: Use proxies")
 
 if firewall_evasion == "--mtu: Set custom offset size":
     mtu_size = input("Enter MTU size: ").strip()
