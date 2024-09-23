@@ -1,7 +1,5 @@
 import subprocess
 import platform
-import threading
-import time
 
 # Define colors
 NC = '\033[0m'  # No Color
@@ -43,22 +41,6 @@ def display_menu(prompt, *options):
                 print(f"{RED}Invalid option. Please select a valid number.{NC}")
         except ValueError:
             print(f"{RED}Please enter a valid number.{NC}")
-
-
-# Function to monitor the output of the command
-def monitor_nmap_process(process):
-    start_time = time.time()
-    while True:
-        output = process.stdout.readline()
-        if output == b'' and process.poll() is not None:
-            break
-        if output:
-            print(output.decode().strip())
-            elapsed_time = time.time() - start_time
-            # Estimate remaining time (very basic)
-            remaining_time = "Estimating remaining time is complex and depends on scan size."
-            print(f"{CYAN}Elapsed Time: {elapsed_time:.2f} seconds | {remaining_time}{NC}")
-        time.sleep(0.5)
 
 
 # Check if nmap is installed
@@ -225,14 +207,8 @@ nmap_command = " ".join(nmap_command_parts)
 print(f"\n{BOLD}{CYAN}Executing the command:{NC} {GREEN}{nmap_command}{NC}")
 
 # Using subprocess to execute the command
-process = subprocess.Popen(nmap_command, shell=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+result = subprocess.run(nmap_command, shell=True, text=True, capture_output=True)
 
-# Start monitoring the nmap process
-monitor_thread = threading.Thread(target=monitor_nmap_process, args=(process,))
-monitor_thread.start()
-
-# Wait for the process to finish
-process.wait()
-monitor_thread.join()
-
-print(f"\n{BOLD}{CYAN}Scan completed!{NC}")
+# Print the output and error messages
+print(result.stdout)
+print(result.stderr)
